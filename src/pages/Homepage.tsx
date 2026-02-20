@@ -20,7 +20,7 @@ const Homepage = () => {
 
         <div className="bg-muted/50 border border-border rounded-lg p-4 space-y-2">
           <p className="text-sm text-muted-foreground">
-            <span className="font-semibold text-foreground">Usuario:</span> juan.perez@example.com
+            <span className="font-semibold text-foreground">UI auth:</span> Tokenizado
           </p>
           <p className="text-sm text-muted-foreground">
             <span className="font-semibold text-foreground">Estado:</span> Conectado

@@ -12,10 +12,10 @@ const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({
-    firstName: "Juan José",
-    lastName: "Pérez Gómez",
-    email: "juan.perez@example.com",
-    password: "P@ssw0rd!",
+    firstName: "",
+    lastName: "",
+    email: "",
+    password: "",
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {

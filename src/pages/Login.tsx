@@ -3,7 +3,6 @@ import { Link, useNavigate } from "react-router-dom";
 import AuthLayout from "@/components/AuthLayout";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
 import { Eye, EyeOff, LogIn } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -11,8 +10,8 @@ const Login = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [showPassword, setShowPassword] = useState(false);
-  const [email, setEmail] = useState("juan.perez@example.com");
-  const [password, setPassword] = useState("P@ssw0rd!");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -49,7 +48,6 @@ const Login = () => {
         description: "Autenticación exitosa",
       });
 
-      // Redirigir a homepage
       navigate("/homepage");
     } catch (error) {
       toast({
@@ -83,6 +81,7 @@ const Login = () => {
             onChange={(e) => setEmail(e.target.value)}
             className="bg-muted border-border text-foreground placeholder:text-muted-foreground focus-visible:ring-primary focus-visible:border-primary transition-all"
             required
+            autoComplete="email"
           />
         </div>
 
@@ -99,6 +98,7 @@ const Login = () => {
               onChange={(e) => setPassword(e.target.value)}
               className="bg-muted border-border text-foreground placeholder:text-muted-foreground focus-visible:ring-primary focus-visible:border-primary transition-all pr-10"
               required
+              autoComplete="current-password"
             />
             <button
               type="button"
