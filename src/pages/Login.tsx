@@ -37,10 +37,9 @@ const Login = () => {
         });
         return;
       }
-
       // Guardar token en localStorage
-      if (data.token) {
-        localStorage.setItem("token", data.token);
+      if (data.data?.token) {
+        localStorage.setItem("token", data.data.token);
       }
 
       toast({

@@ -1,17 +1,57 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import AuthLayout from "@/components/AuthLayout";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ArrowLeft, Send, CheckCircle2 } from "lucide-react";
+import AuthLayout from "@/components/AuthLayout";
+import { useToast } from "@/hooks/use-toast";
 
 const ForgotPassword = () => {
+  const { toast } = useToast();
   const [email, setEmail] = useState("");
   const [sent, setSent] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSent(true);
+    setLoading(true);
+
+    try {
+      const response = await fetch("https://elevideo.onrender.com/api/v1/auth/forgot-password", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await response.json();
+      console.log(response)
+      if (!response.ok) {
+        toast({
+          title: "Error",
+          description: data.message || "No se pudo procesar la solicitud",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      toast({
+        title: "¡Correo enviado!",
+        description: "Revisa tu correo para continuar con la recuperación",
+      });
+
+      setSent(true);
+    } catch (error) {
+      toast({
+        title: "Error de conexión",
+        description: "No se pudo conectar con el servidor",
+        variant: "destructive",
+      });
+      console.error("Forgot password error:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -43,10 +83,11 @@ const ForgotPassword = () => {
 
             <button
               type="submit"
-              className="w-full gradient-cyber text-white font-semibold py-2.5 px-4 rounded-lg glow-button hover:opacity-90 active:scale-[0.98] transition-all duration-200 flex items-center justify-center gap-2"
+              disabled={loading}
+              className="w-full gradient-cyber text-white font-semibold py-2.5 px-4 rounded-lg glow-button hover:opacity-90 active:scale-[0.98] transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Send size={18} />
-              Enviar enlace
+              {loading ? "Enviando..." : "Enviar enlace"}
             </button>
           </form>
         </>

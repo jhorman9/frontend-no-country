@@ -5,6 +5,9 @@ import VerifyEmail from "./pages/VerifyEmail";
 import Homepage from "./pages/Homepage";
 import NotFound from "./pages/NotFound";
 
+import { ResetPassword } from "./pages/ResetPassword";
+
+
 import { useApiHeartbeat } from "./hooks/use-api-heartbeat";
 import { ProtectedRoutes } from "./components/ProtectedRoutes";
 import { Toaster } from "@/components/ui/toaster";
@@ -23,4 +26,5 @@ export {
   Homepage,
   NotFound,
   ProtectedRoutes,
+  ResetPassword
 }

@@ -53,7 +53,7 @@ const Register = () => {
 
       toast({
         title: "¡Registro exitoso!",
-        description: "Ahora puedes iniciar sesión con tus credenciales",
+        description: "Te hemos enviado un correo de verificación. Debes verificar tu correo para poder iniciar sesión.",
       });
 
       // Redirigir a login después del registro exitoso
