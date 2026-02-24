@@ -1,6 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Routes, Route, Navigate, HashRouter } from "react-router-dom";
-import path from 'path';
+import { Routes, Route, Navigate, BrowserRouter } from "react-router-dom";
 import { 
   useApiHeartbeat, 
   ForgotPassword, 
@@ -25,7 +24,7 @@ const App = () => {
       <TooltipProvider>
         <Toaster />
         <Sonner />
-        <HashRouter>
+        <BrowserRouter>
           <Routes>
             <Route element={<ProtectedRoutes />}>
               <Route path="/homepage" element={<Homepage />} />
@@ -38,7 +37,7 @@ const App = () => {
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
-        </HashRouter>
+        </BrowserRouter>
       </TooltipProvider>
     </QueryClientProvider>
   );
