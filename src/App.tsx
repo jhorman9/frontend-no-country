@@ -3,7 +3,10 @@ import { Routes, Route, Navigate, BrowserRouter } from "react-router-dom";
 import { 
   useApiHeartbeat, 
   ForgotPassword, 
-  Homepage, 
+  Homepage,
+  Dashboard,
+  Proyectos,
+  Videos,
   Login, 
   NotFound, 
   ProtectedRoutes, 
@@ -27,7 +30,11 @@ const App = () => {
         <BrowserRouter>
           <Routes>
             <Route element={<ProtectedRoutes />}>
-              <Route path="/homepage" element={<Homepage />} />
+              <Route path="/admin" element={<Dashboard />}>
+                <Route path="proyectos" element={<Proyectos />} />
+                <Route path="videos" element={<Videos />} />
+                <Route index element={<Navigate to="proyectos" replace />} />
+              </Route>
             </Route>
             <Route path="/" element={<Navigate to="/login" replace />} />
             <Route path="/login" element={<Login />} />

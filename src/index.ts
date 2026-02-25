@@ -3,6 +3,9 @@ import Register from "./pages/Register";
 import ForgotPassword from "./pages/ForgotPassword";
 import VerifyEmail from "./pages/VerifyEmail";
 import Homepage from "./pages/Homepage";
+import Dashboard from "./pages/Dashboard";
+import Proyectos from "./pages/admin/Proyectos";
+import Videos from "./pages/admin/Videos";
 import NotFound from "./pages/NotFound";
 
 import { ResetPassword } from "./pages/ResetPassword";
@@ -24,6 +27,9 @@ export {
   ForgotPassword,
   VerifyEmail,
   Homepage,
+  Dashboard,
+  Proyectos,
+  Videos,
   NotFound,
   ProtectedRoutes,
   ResetPassword
