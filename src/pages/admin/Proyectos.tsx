@@ -45,6 +45,9 @@ const Proyectos = () => {
   const [showModal, setShowModal] = useState(false);
   const [formData, setFormData] = useState({ nombre: "", descripcion: "" });
   const [creatingProject, setCreatingProject] = useState(false);
+  const [editingProjectId, setEditingProjectId] = useState<number | null>(null);
+  const [editFormData, setEditFormData] = useState({ nombre: "", descripcion: "" });
+  const [editingProject, setEditingProject] = useState(false);
 
   useEffect(() => {
     fetchProyectos();
@@ -204,11 +207,142 @@ const Proyectos = () => {
   };
 
   const handleEliminar = async (id: number) => {
-    // Eliminar proyecto
-    toast({
-      title: "Función en desarrollo",
-      description: "La eliminación se implementará proximamente",
-    });
+    try {
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        toast({
+          title: "Error de autenticación",
+          description: "Por favor inicia sesión de nuevo",
+          variant: "destructive",
+        });
+        navigate("/login");
+        return;
+      }
+
+      const response = await fetch(`${API_BASE}/projects/${id}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.status === 401) {
+        localStorage.removeItem("token");
+        toast({
+          title: "Sesión expirada",
+          description: "Tu sesión ha expirado, por favor inicia sesión de nuevo",
+          variant: "destructive",
+        });
+        navigate("/login");
+        return;
+      }
+
+      if (!response.ok) {
+        throw new Error("Error al eliminar el proyecto");
+      }
+
+      toast({
+        title: "Proyecto eliminado",
+        description: "El proyecto ha sido eliminado correctamente",
+      });
+
+      setCurrentPage(0);
+      await fetchProyectos();
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "Error desconocido";
+      toast({
+        title: "Error al eliminar proyecto",
+        description: errorMessage,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleEditClick = (proyecto: Proyecto) => {
+    setEditingProjectId(proyecto.id);
+    setEditFormData({ nombre: proyecto.nombre, descripcion: proyecto.descripcion });
+  };
+
+  const handleEditProyecto = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!editFormData.nombre.trim()) {
+      toast({
+        title: "Campo requerido",
+        description: "Por favor ingresa el nombre del proyecto",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      setEditingProject(true);
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        toast({
+          title: "Error de autenticación",
+          description: "Por favor inicia sesión de nuevo",
+          variant: "destructive",
+        });
+        navigate("/login");
+        return;
+      }
+
+      const response = await fetch(`${API_BASE}/projects/${editingProjectId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          name: editFormData.nombre,
+          description: editFormData.descripcion,
+        }),
+      });
+
+      if (response.status === 401) {
+        localStorage.removeItem("token");
+        toast({
+          title: "Sesión expirada",
+          description: "Tu sesión ha expirado, por favor inicia sesión de nuevo",
+          variant: "destructive",
+        });
+        navigate("/login");
+        return;
+      }
+
+      if (!response.ok) {
+        throw new Error("Error al actualizar el proyecto");
+      }
+
+      toast({
+        title: "Proyecto actualizado",
+        description: `"${editFormData.nombre}" ha sido actualizado correctamente`,
+      });
+
+      setEditingProjectId(null);
+      setEditFormData({ nombre: "", descripcion: "" });
+      await fetchProyectos();
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "Error desconocido";
+      toast({
+        title: "Error al actualizar proyecto",
+        description: errorMessage,
+        variant: "destructive",
+      });
+    } finally {
+      setEditingProject(false);
+    }
+  };
+
+  const handleCloseEditModal = () => {
+    if (!editingProject) {
+      setEditingProjectId(null);
+      setEditFormData({ nombre: "", descripcion: "" });
+    }
   };
 
   const handlePaginaAnterior = () => {
@@ -325,6 +459,7 @@ const Proyectos = () => {
                       Ver
                     </Button>
                     <Button
+                      onClick={() => handleEditClick(proyecto)}
                       variant="outline"
                       className="flex-1 border-slate-600 text-slate-400 hover:bg-slate-700/50 gap-1 text-sm"
                     >
@@ -398,6 +533,92 @@ const Proyectos = () => {
             </div>
           </CardContent>
         </Card>
+      )}
+
+      {/* Modal para editar proyecto */}
+      {editingProjectId !== null && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur flex items-center justify-center z-50">
+          <Card className="bg-slate-800 border-slate-700/50 max-w-md w-full mx-4">
+            <CardHeader className="flex flex-row items-center justify-between">
+              <CardTitle className="text-white">Editar Proyecto</CardTitle>
+              <Button
+                onClick={handleCloseEditModal}
+                disabled={editingProject}
+                variant="ghost"
+                className="text-slate-400 hover:text-white hover:bg-slate-700/50"
+              >
+                <X className="w-5 h-5" />
+              </Button>
+            </CardHeader>
+
+            <CardContent>
+              <form onSubmit={handleEditProyecto} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="edit-nombre" className="text-white">
+                    Nombre del Proyecto
+                  </Label>
+                  <Input
+                    id="edit-nombre"
+                    type="text"
+                    placeholder="Nombre del proyecto"
+                    value={editFormData.nombre}
+                    onChange={(e) =>
+                      setEditFormData({ ...editFormData, nombre: e.target.value })
+                    }
+                    disabled={editingProject}
+                    className="bg-slate-700/50 border-slate-600 text-white placeholder:text-slate-500 focus-visible:ring-cyber-blue focus-visible:border-cyber-blue"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="edit-descripcion" className="text-white">
+                    Descripción (Opcional)
+                  </Label>
+                  <textarea
+                    id="edit-descripcion"
+                    placeholder="Describe tu proyecto..."
+                    value={editFormData.descripcion}
+                    onChange={(e) =>
+                      setEditFormData({ ...editFormData, descripcion: e.target.value })
+                    }
+                    disabled={editingProject}
+                    className="w-full px-3 py-2 bg-slate-700/50 border border-slate-600 text-white placeholder:text-slate-500 rounded-md focus:outline-none focus:ring-2 focus:ring-cyber-blue focus:border-cyber-blue disabled:opacity-50 disabled:cursor-not-allowed resize-none"
+                    rows={3}
+                  />
+                </div>
+
+                <div className="flex gap-2 pt-4">
+                  <Button
+                    type="submit"
+                    disabled={editingProject}
+                    className="flex-1 bg-gradient-to-r from-cyber-blue to-deep-violet hover:shadow-lg hover:shadow-cyber-blue/30 text-white font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {editingProject ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                        Actualizando...
+                      </>
+                    ) : (
+                      <>
+                        <Edit2 className="w-4 h-4 mr-2" />
+                        Actualizar
+                      </>
+                    )}
+                  </Button>
+                  <Button
+                    type="button"
+                    onClick={handleCloseEditModal}
+                    disabled={editingProject}
+                    variant="outline"
+                    className="flex-1 border-slate-600 text-slate-400 hover:bg-slate-700/50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Cancelar
+                  </Button>
+                </div>
+              </form>
+            </CardContent>
+          </Card>
+        </div>
       )}
 
       {/* Modal para crear proyecto */}
