@@ -1,7 +1,7 @@
 import { useState, useRef, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Upload, Scissors, Download, Trash2, Play, ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 

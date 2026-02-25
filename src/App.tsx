@@ -3,7 +3,6 @@ import { Routes, Route, Navigate, BrowserRouter } from "react-router-dom";
 import { 
   useApiHeartbeat, 
   ForgotPassword, 
-  Homepage,
   Dashboard,
   Proyectos,
   Videos,

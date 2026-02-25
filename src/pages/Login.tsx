@@ -47,7 +47,7 @@ const Login = () => {
         description: "Autenticación exitosa",
       });
 
-      navigate("/homepage");
+      navigate("/admin");
     } catch (error) {
       toast({
         title: "Error de conexión",
