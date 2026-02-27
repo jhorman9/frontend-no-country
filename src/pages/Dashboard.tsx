@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { LogOut, LayoutGrid, Film } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
+import icon from "../../public/favicon.ico";
+
 const Dashboard = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -37,8 +39,8 @@ const Dashboard = () => {
                 !sidebarOpen && "justify-center w-full"
               }`}
             >
-              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-cyber-blue to-deep-violet flex items-center justify-center">
-                <Film className="w-6 h-6 text-white" />
+              <div>
+                <img src={icon} alt="Elevideo Logo" className="w-12 h-12" />
               </div>
               {sidebarOpen && (
                 <div>
@@ -65,7 +67,7 @@ const Dashboard = () => {
             {sidebarOpen && <span>Proyectos</span>}
           </Button>
 
-          <Button
+          {/* <Button
             onClick={() => navigate("/admin/videos")}
             variant="ghost"
             className={`w-full justify-start gap-3 transition-colors ${
@@ -76,7 +78,7 @@ const Dashboard = () => {
           >
             <Film className="w-5 h-5 flex-shrink-0" />
             {sidebarOpen && <span>Videos</span>}
-          </Button>
+          </Button> */}
         </nav>
 
         {/* Logout */}

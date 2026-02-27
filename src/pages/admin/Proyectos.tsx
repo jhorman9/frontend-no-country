@@ -1,360 +1,132 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Plus, Trash2, Edit2, Eye, ChevronLeft, ChevronRight, Loader2, X } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
-
-interface ProyectoAPI {
-  id: number;
-  name: string;
-  description: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-interface PaginationResponse {
-  content: ProyectoAPI[];
-  totalElements: number;
-  totalPages: number;
-  number: number;
-  size: number;
-  numberOfElements: number;
-}
-
-interface Proyecto {
-  id: number;
-  nombre: string;
-  descripcion: string;
-  creado: string;
-}
-
-const PAGE_SIZE = 20;
-const API_BASE = "https://elevideo.onrender.com";
+import { useProyectos } from "@/hooks/api/use-proyectos";
+import { useModal } from "@/hooks/ui/use-modal";
+import { usePagination } from "@/hooks/ui/use-pagination";
 
 const Proyectos = () => {
   const navigate = useNavigate();
-  const { toast } = useToast();
-  const [proyectos, setProyectos] = useState<Proyecto[]>([]);
-  const [currentPage, setCurrentPage] = useState(0);
-  const [totalPages, setTotalPages] = useState(0);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [showModal, setShowModal] = useState(false);
+  
+  // Paginación
+  const pagination = usePagination(0);
+  
+  // Lógica de negocio de proyectos
+  const {
+    proyectos,
+    loading,
+    error,
+    totalPages,
+    fetchProyectos,
+    createProyecto,
+    updateProyecto,
+    deleteProyecto,
+    isCreating,
+    isUpdating,
+  } = useProyectos({ page: pagination.currentPage, size: 20 });
+
+  // Sincronizar totalPages con paginación
+  if (totalPages !== pagination.totalPages) {
+    pagination.setTotalPages(totalPages);
+  }
+
+  // Modales
+  const createModal = useModal();
+  const editModal = useModal();
+
+  // Estados de formularios
   const [formData, setFormData] = useState({ nombre: "", descripcion: "" });
-  const [creatingProject, setCreatingProject] = useState(false);
   const [editingProjectId, setEditingProjectId] = useState<number | null>(null);
   const [editFormData, setEditFormData] = useState({ nombre: "", descripcion: "" });
-  const [editingProject, setEditingProject] = useState(false);
 
-  useEffect(() => {
-    fetchProyectos();
-  }, [currentPage]);
-
-  const fetchProyectos = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const token = localStorage.getItem("token");
-
-      if (!token) {
-        setError("No autenticado");
-        toast({
-          title: "Error de autenticación",
-          description: "Por favor inicia sesión de nuevo",
-          variant: "destructive",
-        });
-        navigate("/login");
-        return;
-      }
-
-      const response = await fetch(
-        `${API_BASE}/projects?page=${currentPage}&size=${PAGE_SIZE}&sortBy=createdAt&sortDirection=DESC`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      if (response.status === 401) {
-        setError("No autenticado");
-        localStorage.removeItem("token");
-        toast({
-          title: "Sesión expirada",
-          description: "Tu sesión ha expirado, por favor inicia sesión de nuevo",
-          variant: "destructive",
-        });
-        navigate("/login");
-        return;
-      }
-
-      if (!response.ok) {
-        throw new Error("Error al obtener proyectos");
-      }
-
-      const data: PaginationResponse = await response.json();
-      const proyectosFormateados: Proyecto[] = data.content.map((p) => ({
-        id: p.id,
-        nombre: p.name,
-        descripcion: p.description,
-        creado: p.createdAt,
-      }));
-
-      setProyectos(proyectosFormateados);
-      setTotalPages(data.totalPages);
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Error desconocido";
-      setError(errorMessage);
-      toast({
-        title: "Error al cargar proyectos",
-        description: errorMessage,
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
+  // Handlers
   const handleNuevoProyecto = () => {
     setFormData({ nombre: "", descripcion: "" });
-    setShowModal(true);
+    createModal.open();
   };
 
   const handleCrearProyecto = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!formData.nombre.trim()) {
-      toast({
-        title: "Campo requerido",
-        description: "Por favor ingresa el nombre del proyecto",
-        variant: "destructive",
-      });
       return;
     }
 
     try {
-      setCreatingProject(true);
-      const token = localStorage.getItem("token");
-
-      if (!token) {
-        toast({
-          title: "Error de autenticación",
-          description: "Por favor inicia sesión de nuevo",
-          variant: "destructive",
-        });
-        navigate("/login");
-        return;
-      }
-
-      const response = await fetch(`${API_BASE}/projects`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          name: formData.nombre,
-          description: formData.descripcion,
-        }),
+      await createProyecto({
+        name: formData.nombre,
+        description: formData.descripcion,
       });
 
-      if (response.status === 401) {
-        localStorage.removeItem("token");
-        toast({
-          title: "Sesión expirada",
-          description: "Tu sesión ha expirado, por favor inicia sesión de nuevo",
-          variant: "destructive",
-        });
-        navigate("/login");
-        return;
-      }
-
-      if (!response.ok) {
-        throw new Error("Error al crear el proyecto");
-      }
-
-      toast({
-        title: "Proyecto creado",
-        description: `"${formData.nombre}" ha sido creado correctamente`,
-      });
-
-      setShowModal(false);
+      createModal.close();
       setFormData({ nombre: "", descripcion: "" });
-      setCurrentPage(0);
-      await fetchProyectos();
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Error desconocido";
-      toast({
-        title: "Error al crear proyecto",
-        description: errorMessage,
-        variant: "destructive",
-      });
-    } finally {
-      setCreatingProject(false);
+      pagination.resetPage();
+    } catch {
+      // Error manejado por el hook
     }
   };
 
   const handleCloseModal = () => {
-    if (!creatingProject) {
-      setShowModal(false);
+    if (!isCreating) {
+      createModal.close();
       setFormData({ nombre: "", descripcion: "" });
     }
   };
 
-  const handleEliminar = async (id: number) => {
-    try {
-      const token = localStorage.getItem("token");
-
-      if (!token) {
-        toast({
-          title: "Error de autenticación",
-          description: "Por favor inicia sesión de nuevo",
-          variant: "destructive",
-        });
-        navigate("/login");
-        return;
-      }
-
-      const response = await fetch(`${API_BASE}/projects/${id}`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (response.status === 401) {
-        localStorage.removeItem("token");
-        toast({
-          title: "Sesión expirada",
-          description: "Tu sesión ha expirado, por favor inicia sesión de nuevo",
-          variant: "destructive",
-        });
-        navigate("/login");
-        return;
-      }
-
-      if (!response.ok) {
-        throw new Error("Error al eliminar el proyecto");
-      }
-
-      toast({
-        title: "Proyecto eliminado",
-        description: "El proyecto ha sido eliminado correctamente",
-      });
-
-      setCurrentPage(0);
-      await fetchProyectos();
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Error desconocido";
-      toast({
-        title: "Error al eliminar proyecto",
-        description: errorMessage,
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleEditClick = (proyecto: Proyecto) => {
+  const handleEditClick = (proyecto: { id: number; nombre: string; descripcion: string }) => {
     setEditingProjectId(proyecto.id);
     setEditFormData({ nombre: proyecto.nombre, descripcion: proyecto.descripcion });
+    editModal.open();
   };
 
   const handleEditProyecto = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!editFormData.nombre.trim()) {
-      toast({
-        title: "Campo requerido",
-        description: "Por favor ingresa el nombre del proyecto",
-        variant: "destructive",
-      });
+    if (!editFormData.nombre.trim() || editingProjectId === null) {
       return;
     }
 
     try {
-      setEditingProject(true);
-      const token = localStorage.getItem("token");
-
-      if (!token) {
-        toast({
-          title: "Error de autenticación",
-          description: "Por favor inicia sesión de nuevo",
-          variant: "destructive",
-        });
-        navigate("/login");
-        return;
-      }
-
-      const response = await fetch(`${API_BASE}/projects/${editingProjectId}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          name: editFormData.nombre,
-          description: editFormData.descripcion,
-        }),
+      await updateProyecto(editingProjectId, {
+        name: editFormData.nombre,
+        description: editFormData.descripcion,
       });
 
-      if (response.status === 401) {
-        localStorage.removeItem("token");
-        toast({
-          title: "Sesión expirada",
-          description: "Tu sesión ha expirado, por favor inicia sesión de nuevo",
-          variant: "destructive",
-        });
-        navigate("/login");
-        return;
-      }
-
-      if (!response.ok) {
-        throw new Error("Error al actualizar el proyecto");
-      }
-
-      toast({
-        title: "Proyecto actualizado",
-        description: `"${editFormData.nombre}" ha sido actualizado correctamente`,
-      });
-
+      editModal.close();
       setEditingProjectId(null);
       setEditFormData({ nombre: "", descripcion: "" });
-      await fetchProyectos();
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Error desconocido";
-      toast({
-        title: "Error al actualizar proyecto",
-        description: errorMessage,
-        variant: "destructive",
-      });
-    } finally {
-      setEditingProject(false);
+    } catch {
+      // Error manejado por el hook
     }
   };
 
   const handleCloseEditModal = () => {
-    if (!editingProject) {
+    if (!isUpdating) {
+      editModal.close();
       setEditingProjectId(null);
       setEditFormData({ nombre: "", descripcion: "" });
     }
   };
 
-  const handlePaginaAnterior = () => {
-    if (currentPage > 0) {
-      setCurrentPage(currentPage - 1);
+  const handleEliminar = async (id: number) => {
+    try {
+      await deleteProyecto(id);
+      pagination.resetPage();
+    } catch {
+      // Error manejado por el hook
     }
   };
 
+  const handlePaginaAnterior = () => {
+    pagination.previousPage();
+  };
+
   const handlePaginaSiguiente = () => {
-    if (currentPage < totalPages - 1) {
-      setCurrentPage(currentPage + 1);
-    }
+    pagination.nextPage();
   };
 
   return (
@@ -394,10 +166,7 @@ const Proyectos = () => {
           <CardContent className="py-8 text-center">
             <p className="text-destructive mb-4">{error}</p>
             <Button
-              onClick={() => {
-                setError(null);
-                fetchProyectos();
-              }}
+              onClick={fetchProyectos}
               className="bg-destructive hover:bg-destructive/90 text-white"
             >
               Reintentar
@@ -481,22 +250,22 @@ const Proyectos = () => {
           </div>
 
           {/* Pagination */}
-          {totalPages > 1 && (
+          {pagination.totalPages > 1 && (
             <div className="flex justify-center items-center gap-4">
               <Button
                 onClick={handlePaginaAnterior}
-                disabled={currentPage === 0}
+                disabled={!pagination.canGoPrevious}
                 variant="outline"
                 className="border-cyber-blue/40 text-cyber-blue hover:bg-cyber-blue/10 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <ChevronLeft className="w-4 h-4" />
               </Button>
               <span className="text-slate-400">
-                Página {currentPage + 1} de {totalPages}
+                Página {pagination.currentPage + 1} de {pagination.totalPages}
               </span>
               <Button
                 onClick={handlePaginaSiguiente}
-                disabled={currentPage === totalPages - 1}
+                disabled={!pagination.canGoNext}
                 variant="outline"
                 className="border-cyber-blue/40 text-cyber-blue hover:bg-cyber-blue/10 disabled:opacity-50 disabled:cursor-not-allowed"
               >
@@ -536,14 +305,14 @@ const Proyectos = () => {
       )}
 
       {/* Modal para editar proyecto */}
-      {editingProjectId !== null && (
+      {editModal.isOpen && editingProjectId !== null && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur flex items-center justify-center z-50">
           <Card className="bg-slate-800 border-slate-700/50 max-w-md w-full mx-4">
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle className="text-white">Editar Proyecto</CardTitle>
               <Button
                 onClick={handleCloseEditModal}
-                disabled={editingProject}
+                disabled={isUpdating}
                 variant="ghost"
                 className="text-slate-400 hover:text-white hover:bg-slate-700/50"
               >
@@ -565,7 +334,7 @@ const Proyectos = () => {
                     onChange={(e) =>
                       setEditFormData({ ...editFormData, nombre: e.target.value })
                     }
-                    disabled={editingProject}
+                    disabled={isUpdating}
                     className="bg-slate-700/50 border-slate-600 text-white placeholder:text-slate-500 focus-visible:ring-cyber-blue focus-visible:border-cyber-blue"
                   />
                 </div>
@@ -581,7 +350,7 @@ const Proyectos = () => {
                     onChange={(e) =>
                       setEditFormData({ ...editFormData, descripcion: e.target.value })
                     }
-                    disabled={editingProject}
+                    disabled={isUpdating}
                     className="w-full px-3 py-2 bg-slate-700/50 border border-slate-600 text-white placeholder:text-slate-500 rounded-md focus:outline-none focus:ring-2 focus:ring-cyber-blue focus:border-cyber-blue disabled:opacity-50 disabled:cursor-not-allowed resize-none"
                     rows={3}
                   />
@@ -590,10 +359,10 @@ const Proyectos = () => {
                 <div className="flex gap-2 pt-4">
                   <Button
                     type="submit"
-                    disabled={editingProject}
+                    disabled={isUpdating}
                     className="flex-1 bg-gradient-to-r from-cyber-blue to-deep-violet hover:shadow-lg hover:shadow-cyber-blue/30 text-white font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {editingProject ? (
+                    {isUpdating ? (
                       <>
                         <Loader2 className="w-4 h-4 animate-spin mr-2" />
                         Actualizando...
@@ -608,7 +377,7 @@ const Proyectos = () => {
                   <Button
                     type="button"
                     onClick={handleCloseEditModal}
-                    disabled={editingProject}
+                    disabled={isUpdating}
                     variant="outline"
                     className="flex-1 border-slate-600 text-slate-400 hover:bg-slate-700/50 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
@@ -622,14 +391,14 @@ const Proyectos = () => {
       )}
 
       {/* Modal para crear proyecto */}
-      {showModal && (
+      {createModal.isOpen && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur flex items-center justify-center z-50">
           <Card className="bg-slate-800 border-slate-700/50 max-w-md w-full mx-4">
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle className="text-white">Crear Nuevo Proyecto</CardTitle>
               <Button
                 onClick={handleCloseModal}
-                disabled={creatingProject}
+                disabled={isCreating}
                 variant="ghost"
                 className="text-slate-400 hover:text-white hover:bg-slate-700/50"
               >
@@ -651,7 +420,7 @@ const Proyectos = () => {
                     onChange={(e) =>
                       setFormData({ ...formData, nombre: e.target.value })
                     }
-                    disabled={creatingProject}
+                    disabled={isCreating}
                     className="bg-slate-700/50 border-slate-600 text-white placeholder:text-slate-500 focus-visible:ring-cyber-blue focus-visible:border-cyber-blue"
                   />
                 </div>
@@ -667,7 +436,7 @@ const Proyectos = () => {
                     onChange={(e) =>
                       setFormData({ ...formData, descripcion: e.target.value })
                     }
-                    disabled={creatingProject}
+                    disabled={isCreating}
                     className="w-full px-3 py-2 bg-slate-700/50 border border-slate-600 text-white placeholder:text-slate-500 rounded-md focus:outline-none focus:ring-2 focus:ring-cyber-blue focus:border-cyber-blue disabled:opacity-50 disabled:cursor-not-allowed resize-none"
                     rows={3}
                   />
@@ -676,10 +445,10 @@ const Proyectos = () => {
                 <div className="flex gap-2 pt-4">
                   <Button
                     type="submit"
-                    disabled={creatingProject}
+                    disabled={isCreating}
                     className="flex-1 bg-gradient-to-r from-cyber-blue to-deep-violet hover:shadow-lg hover:shadow-cyber-blue/30 text-white font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {creatingProject ? (
+                    {isCreating ? (
                       <>
                         <Loader2 className="w-4 h-4 animate-spin mr-2" />
                         Creando...
@@ -694,7 +463,7 @@ const Proyectos = () => {
                   <Button
                     type="button"
                     onClick={handleCloseModal}
-                    disabled={creatingProject}
+                    disabled={isCreating}
                     variant="outline"
                     className="flex-1 border-slate-600 text-slate-400 hover:bg-slate-700/50 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
