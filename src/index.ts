@@ -6,6 +6,7 @@ import Homepage from "./pages/Homepage";
 import Dashboard from "./pages/Dashboard";
 import Proyectos from "./pages/admin/Proyectos";
 import Videos from "./pages/admin/Videos";
+import VideoPage from "./pages/admin/VideoPage";
 import NotFound from "./pages/NotFound";
 
 import { ResetPassword } from "./pages/ResetPassword";
@@ -30,6 +31,7 @@ export {
   Dashboard,
   Proyectos,
   Videos,
+  VideoPage,
   NotFound,
   ProtectedRoutes,
   ResetPassword

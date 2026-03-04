@@ -6,6 +6,7 @@ import {
   Dashboard,
   Proyectos,
   Videos,
+  VideoPage,
   Login, 
   NotFound, 
   ProtectedRoutes, 
@@ -32,6 +33,7 @@ const App = () => {
               <Route path="/admin" element={<Dashboard />}>
                 <Route path="proyectos" element={<Proyectos />} />
                 <Route path="videos" element={<Videos />} />
+                <Route path="proyectos/:projectId/videos/:videoId" element={<VideoPage />} />
                 <Route index element={<Navigate to="proyectos" replace />} />
               </Route>
             </Route>

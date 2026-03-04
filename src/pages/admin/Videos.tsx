@@ -1,5 +1,5 @@
 import { useRef } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Upload, Scissors, Download, Trash2, Play, ArrowLeft, Loader2 } from "lucide-react";
@@ -10,6 +10,7 @@ import type { Video } from "@/types/video.types";
 
 const Videos = () => {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const proyectoIdParam = searchParams.get("proyectoId");
@@ -214,7 +215,8 @@ const Videos = () => {
                 {videos.map((video) => (
                   <tr
                     key={video.id}
-                    className="hover:bg-slate-700/20 transition-colors"
+                    onClick={() => navigate(`/admin/proyectos/${video.projectId}/videos/${video.id}`)}
+                    className="hover:bg-slate-700/20 transition-colors cursor-pointer"
                   >
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
@@ -222,7 +224,7 @@ const Videos = () => {
                           <Play className="w-5 h-5 text-slate-400" />
                         </div>
                         <div className="truncate">
-                          <p className="text-sm font-medium text-white truncate">
+                          <p className="text-sm font-medium text-white truncate hover:text-cyber-blue transition-colors">
                             {video.title}
                           </p>
                         </div>
@@ -251,7 +253,10 @@ const Videos = () => {
                         {video.status === "UPLOADED" && (
                           <>
                             <Button
-                              onClick={() => handleRecortar(video.id)}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleRecortar(video.id);
+                              }}
                               size="sm"
                               variant="outline"
                               className="border-cyber-blue/40 text-cyber-blue hover:bg-cyber-blue/10 h-8 text-xs"
@@ -259,7 +264,10 @@ const Videos = () => {
                               <Scissors className="w-3 h-3" />
                             </Button>
                             <Button
-                              onClick={() => downloadVideo(video)}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                downloadVideo(video);
+                              }}
                               size="sm"
                               variant="outline"
                               className="border-slate-600 text-slate-400 hover:bg-slate-700/50 h-8 text-xs"
@@ -269,7 +277,10 @@ const Videos = () => {
                           </>
                         )}
                         <Button
-                          onClick={() => handleEliminar(video.id)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleEliminar(video.id);
+                          }}
                           size="sm"
                           variant="outline"
                           className="border-destructive/40 text-destructive hover:bg-destructive/10 h-8 text-xs"

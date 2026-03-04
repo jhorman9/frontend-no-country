@@ -13,16 +13,24 @@ const API_BASE = "https://elevideo.onrender.com";
  */
 export const videosApi = {
   /**
-   * Obtener videos de un proyecto con paginación
+   * Obtener videos por proyecto
+   * Endpoint: GET /api/v1/projects/:projectId/videos
    */
-  getAll: async (options: GetVideosOptions): Promise<VideosResponse> => {
-    const { 
-      projectId, 
-      page = 0, 
-      size = 20, 
-      sortBy = "createdAt", 
-      sortDirection = "DESC" 
-    } = options;
+  getByProject: async (
+    projectId: number | string,
+    params: {
+      page?: number;
+      size?: number;
+      sortBy?: string;
+      sortDirection?: "ASC" | "DESC";
+    } = {}
+  ): Promise<VideosResponse> => {
+    const {
+      page = 0,
+      size = 20,
+      sortBy = "createdAt",
+      sortDirection = "DESC",
+    } = params;
 
     const queryParams = new URLSearchParams({
       page: page.toString(),
@@ -37,6 +45,14 @@ export const videosApi = {
   },
 
   /**
+   * Obtener videos de un proyecto con paginación
+   */
+  getAll: async (options: GetVideosOptions): Promise<VideosResponse> => {
+    const { projectId, ...params } = options;
+    return videosApi.getByProject(projectId, params);
+  },
+
+  /**
    * Obtener un video por ID
    */
   getById: async (projectId: number | string, videoId: number): Promise<Video> => {
@@ -44,18 +60,14 @@ export const videosApi = {
   },
 
   /**
-   * Subir un nuevo video
-   * Nota: Este método no usa apiClient porque necesita FormData
+   * Crear/subir video
+   * Endpoint: POST /api/v1/projects/:projectId/videos
    */
-  upload: async (projectId: number | string, data: UploadVideoDTO): Promise<Video> => {
+  create: async (projectId: number | string, formData: FormData): Promise<Video> => {
     const token = localStorage.getItem("token");
     if (!token) {
       throw new Error("No autenticado");
     }
-
-    const formData = new FormData();
-    formData.append("video", data.video);
-    formData.append("title", data.title);
 
     const response = await fetch(
       `${API_BASE}/api/v1/projects/${projectId}/videos`,
@@ -63,13 +75,11 @@ export const videosApi = {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
-          // NO incluir Content-Type para que el navegador lo establezca automáticamente con boundary
         },
         body: formData,
       }
     );
 
-    // Manejar 401
     if (response.status === 401) {
       localStorage.removeItem("token");
       throw {
@@ -78,10 +88,8 @@ export const videosApi = {
       };
     }
 
-    // Obtener datos de respuesta
     const responseData = await response.json().catch(() => ({}));
 
-    // Manejar errores específicos
     if (response.status === 400) {
       const fieldErrors = responseData.fieldErrors || {};
       const errorMessages = Object.entries(fieldErrors)
@@ -116,6 +124,17 @@ export const videosApi = {
     }
 
     return responseData;
+  },
+
+  /**
+   * Subir un nuevo video
+   * Nota: Este método no usa apiClient porque necesita FormData
+   */
+  upload: async (projectId: number | string, data: UploadVideoDTO): Promise<Video> => {
+    const formData = new FormData();
+    formData.append("video", data.video);
+    formData.append("title", data.title);
+    return videosApi.create(projectId, formData);
   },
 
   /**
