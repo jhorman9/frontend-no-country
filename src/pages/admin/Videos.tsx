@@ -1,16 +1,14 @@
 import { useRef } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { Navigate, useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Upload, Scissors, Trash2, Play, ArrowLeft, Loader2 } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
 import { useVideos } from "@/hooks/api/use-videos";
 import { usePagination } from "@/hooks/ui/use-pagination";
 
 const Videos = () => {
-  const { toast } = useToast();
   const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const proyectoIdParam = searchParams.get("proyectoId");
 
@@ -27,6 +25,11 @@ const Videos = () => {
     deleteVideo,
     isUploading,
   } = useVideos({ projectId: proyectoIdParam, page: pagination.currentPage, size: 20 });
+
+
+  if(!searchParams.has("proyectoId")) {
+    return <Navigate to="/admin/proyectos" />;
+  }
 
   // Sincronizar totalPages con paginación
   if (totalPages !== pagination.totalPages) {
@@ -111,7 +114,7 @@ const Videos = () => {
           <div className="flex items-center gap-3 mb-2">
             {proyectoIdParam && (
               <Button
-                onClick={() => setSearchParams({})}
+                onClick={() => navigate("/admin/proyectos")}
                 variant="ghost"
                 className="text-slate-400 hover:text-white hover:bg-slate-700/50 gap-2 p-0"
               >

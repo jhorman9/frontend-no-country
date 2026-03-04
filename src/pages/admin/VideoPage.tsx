@@ -47,6 +47,19 @@ import {
 import type { Video } from "@/types/video.types";
 import type { ProcessVideoPayload, ProcessingJob, VideoRendition } from "@/types/processing.types";
 
+const getEstadoTexto = (status: string) => {
+  switch (status) {
+    case "UPLOADED":
+      return "Listo";
+    case "PROCESSING":
+      return "Procesando...";
+    case "ERROR":
+      return "Error";
+    default:
+      return status;
+  }
+};
+
 const platformOptions = [
   { value: "tiktok", label: "TikTok", color: "text-pink-500" },
   { value: "instagram", label: "Instagram Reels", color: "text-purple-500" },
@@ -300,7 +313,7 @@ const VideoPage = () => {
                 { label: "Duración", value: formatDuration(video.durationInMillis) },
                 { label: "Resolución", value: `${video.width}×${video.height}` },
                 { label: "Formato", value: (video.format || "MP4").toUpperCase() },
-                { label: "Estado", value: video.status, isStatus: true },
+                { label: "Estado", value: getEstadoTexto(video.status), isStatus: true },
               ].map((item) => (
                 <div key={item.label} className="rounded-xl p-4 bg-slate-800/40 border border-slate-700/40">
                   <p className="text-sm text-slate-400">{item.label}</p>
