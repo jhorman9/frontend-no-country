@@ -1,16 +1,25 @@
 import { useRef } from "react";
 import { Navigate, useNavigate, useSearchParams } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Upload, Scissors, Download, Trash2, Play, ArrowLeft, Loader2 } from "lucide-react";
 import { useVideos } from "@/hooks/api/use-videos";
 import { usePagination } from "@/hooks/ui/use-pagination";
+import { proyectosApi } from "@/lib/api/proyectos.api";
 
 const Videos = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const proyectoIdParam = searchParams.get("proyectoId");
+
+  // Obtener nombre del proyecto
+  const { data: proyecto, isLoading: proyectoLoading } = useQuery({
+    queryKey: ["proyecto", proyectoIdParam],
+    queryFn: () => proyectosApi.getById(Number(proyectoIdParam)),
+    enabled: Boolean(proyectoIdParam),
+  });
 
   // Paginación
   const pagination = usePagination(0);
@@ -25,7 +34,6 @@ const Videos = () => {
     deleteVideo,
     isUploading,
   } = useVideos({ projectId: proyectoIdParam, page: pagination.currentPage, size: 20 });
-
 
   if(!searchParams.has("proyectoId")) {
     return <Navigate to="/admin/proyectos" />;
@@ -123,7 +131,7 @@ const Videos = () => {
               </Button>
             )}
             <h2 className="text-xl lg:text-3xl font-bold text-white truncate">
-              {proyectoIdParam ? `Videos: Proyecto ${proyectoIdParam}` : "Videos"}
+              {proyectoIdParam ? `Videos: ${proyecto?.name || "Cargando..."}` : "Videos"}
             </h2>
           </div>
           <p className="text-xs lg:text-sm text-slate-400">
