@@ -112,7 +112,7 @@ const VideoPage = () => {
   const [backgroundMode, setBackgroundMode] = useState<ProcessVideoPayload["backgroundMode"]>("smart_crop");
   const [shortAutoDuration, setShortAutoDuration] = useState(0);
   const [shortStartTime, setShortStartTime] = useState(0);
-  const [shortDuration, setShortDuration] = useState(0);
+  const [shortDuration, setShortDuration] = useState(5);
 
   const [isDeleteRenditionOpen, setIsDeleteRenditionOpen] = useState(false);
   const [selectedRendition, setSelectedRendition] = useState<VideoRendition | null>(null);
@@ -622,6 +622,7 @@ const VideoPage = () => {
                       value={shortStartTime}
                       onChange={(e) => setShortStartTime(Number(e.target.value))}
                       min={0}
+                      max={video.durationInMillis - 5}
                       className="h-9 lg:h-11 text-xs lg:text-sm"
                       data-testid="short-start-time-input"
                     />
@@ -635,7 +636,7 @@ const VideoPage = () => {
                       value={[shortDuration]}
                       onValueChange={([v]) => setShortDuration(v)}
                       min={5}
-                      max={video.durationInMillis}
+                      max={video.durationInMillis - shortStartTime}
                       step={1}
                       data-testid="short-manual-duration-slider"
                     />

@@ -29,8 +29,6 @@ const Login = () => {
 
       const data = await response.json();
 
-      console.log({data})
-
       if (!response.ok) {
         toast({
           title: "Error de autenticación",
