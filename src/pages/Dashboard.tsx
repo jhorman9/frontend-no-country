@@ -137,11 +137,15 @@ const Dashboard = () => {
             </h1>
           </div>
           <div className="flex items-center gap-4">
-            <div className="w-8 h-8 lg:w-10 lg:h-10 rounded-full bg-gradient-to-br from-cyber-blue to-deep-violet flex items-center justify-center text-white text-sm lg:text-base font-semibold">
+            <button
+              onClick={() => navigate("/admin/perfil")}
+              className="w-8 h-8 lg:w-10 lg:h-10 rounded-full bg-gradient-to-br from-cyber-blue to-deep-violet flex items-center justify-center text-white text-sm lg:text-base font-semibold hover:shadow-lg hover:shadow-cyber-blue/50 transition-shadow"
+              title="Ver mi perfil"
+            >
               {userInitial}
-            </div>
+            </button>
             <div className="hidden sm:block text-sm lg:text-base text-white">
-              {userName}
+              {user?.data?.firstName} {user?.data?.lastName}
             </div>
           </div>
         </div>
