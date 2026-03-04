@@ -2,11 +2,10 @@ import { useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Upload, Scissors, Download, Trash2, Play, ArrowLeft, Loader2 } from "lucide-react";
+import { Upload, Scissors, Trash2, Play, ArrowLeft, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useVideos } from "@/hooks/api/use-videos";
 import { usePagination } from "@/hooks/ui/use-pagination";
-import type { Video } from "@/types/video.types";
 
 const Videos = () => {
   const { toast } = useToast();
@@ -26,7 +25,6 @@ const Videos = () => {
     totalPages,
     uploadVideo,
     deleteVideo,
-    downloadVideo,
     isUploading,
   } = useVideos({ projectId: proyectoIdParam, page: pagination.currentPage, size: 20 });
 
@@ -37,7 +35,14 @@ const Videos = () => {
 
   // Función auxiliar para formatear duración
   const formatDuration = (millis: number): string => {
-    const totalSeconds = Math.floor(millis / 1000);
+    if (!millis) return "0:00";
+    
+    // Si el valor es muy pequeño (< 2000), probablemente está en segundos sin convertir
+    // En ese caso, lo interpretamos directamente como segundos
+    const totalSeconds = millis < 2000 
+      ? Math.floor(millis) 
+      : Math.floor(millis / 1000);
+    
     const minutes = Math.floor(totalSeconds / 60);
     const seconds = totalSeconds % 60;
     return `${minutes}:${seconds.toString().padStart(2, '0')}`;
@@ -66,13 +71,6 @@ const Videos = () => {
 
     // Resetear paginación después de subir
     pagination.resetPage();
-  };
-
-  const handleRecortar = (id: number) => {
-    toast({
-      title: "Herramienta de recorte",
-      description: "Abriendo editor de recorte vertical a horizontal",
-    });
   };
 
   const handleEliminar = async (id: number) => {
@@ -253,26 +251,12 @@ const Videos = () => {
                         {video.status === "UPLOADED" && (
                           <>
                             <Button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleRecortar(video.id);
-                              }}
+                              onClick={() => navigate(`/admin/proyectos/${video.projectId}/videos/${video.id}`)}
                               size="sm"
                               variant="outline"
                               className="border-cyber-blue/40 text-cyber-blue hover:bg-cyber-blue/10 h-8 text-xs"
                             >
                               <Scissors className="w-3 h-3" />
-                            </Button>
-                            <Button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                downloadVideo(video);
-                              }}
-                              size="sm"
-                              variant="outline"
-                              className="border-slate-600 text-slate-400 hover:bg-slate-700/50 h-8 text-xs"
-                            >
-                              <Download className="w-3 h-3" />
                             </Button>
                           </>
                         )}

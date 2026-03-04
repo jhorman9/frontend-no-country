@@ -74,7 +74,14 @@ const jobStatusConfig = {
 } as const;
 
 const formatDuration = (millis: number): string => {
-  const totalSeconds = Math.floor((millis || 0) / 1000);
+  if (!millis) return "0:00";
+  
+  // Si el valor es muy pequeño (< 2000), probablemente está en segundos sin convertir
+  // En ese caso, lo interpretamos directamente como segundos
+  const totalSeconds = millis < 2000 
+    ? Math.floor(millis) 
+    : Math.floor(millis / 1000);
+  
   const minutes = Math.floor(totalSeconds / 60);
   const seconds = totalSeconds % 60;
   return `${minutes}:${seconds.toString().padStart(2, "0")}`;
@@ -90,9 +97,9 @@ const VideoPage = () => {
   const [platform, setPlatform] = useState<ProcessVideoPayload["platform"]>("tiktok");
   const [quality, setQuality] = useState<ProcessVideoPayload["quality"]>("normal");
   const [backgroundMode, setBackgroundMode] = useState<ProcessVideoPayload["backgroundMode"]>("smart_crop");
-  const [shortAutoDuration, setShortAutoDuration] = useState(30);
+  const [shortAutoDuration, setShortAutoDuration] = useState(0);
   const [shortStartTime, setShortStartTime] = useState(0);
-  const [shortDuration, setShortDuration] = useState(30);
+  const [shortDuration, setShortDuration] = useState(0);
 
   const [isDeleteRenditionOpen, setIsDeleteRenditionOpen] = useState(false);
   const [selectedRendition, setSelectedRendition] = useState<VideoRendition | null>(null);
@@ -585,8 +592,8 @@ const VideoPage = () => {
                     value={[shortAutoDuration]}
                     onValueChange={([v]) => setShortAutoDuration(v)}
                     min={5}
-                    max={60}
-                    step={5}
+                    max={video.durationInMillis ?? 0}
+                    step={1}
                     className="py-2"
                     data-testid="short-duration-slider"
                   />
@@ -615,8 +622,8 @@ const VideoPage = () => {
                       value={[shortDuration]}
                       onValueChange={([v]) => setShortDuration(v)}
                       min={5}
-                      max={60}
-                      step={5}
+                      max={video.durationInMillis}
+                      step={1}
                       data-testid="short-manual-duration-slider"
                     />
                   </div>

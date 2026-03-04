@@ -30,7 +30,6 @@ export interface UseVideosReturn {
   fetchVideos: () => Promise<void>;
   uploadVideo: (file: File) => Promise<void>;
   deleteVideo: (videoId: number) => Promise<void>;
-  downloadVideo: (video: Video) => void;
   
   // Estados de operaciones
   isUploading: boolean;
@@ -279,20 +278,6 @@ export const useVideos = (options: UseVideosOptions): UseVideosReturn => {
     [projectId, navigate, toast, fetchVideos]
   );
 
-  /**
-   * Descargar un video
-   */
-  const downloadVideo = useCallback(
-    (video: Video) => {
-      videosApi.download(video);
-      toast({
-        title: "Descarga iniciada",
-        description: video.title,
-      });
-    },
-    [toast]
-  );
-
   return {
     // Estado
     videos,
@@ -305,7 +290,6 @@ export const useVideos = (options: UseVideosOptions): UseVideosReturn => {
     fetchVideos,
     uploadVideo,
     deleteVideo,
-    downloadVideo,
 
     // Estados de operaciones
     isUploading,
