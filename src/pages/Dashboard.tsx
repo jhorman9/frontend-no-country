@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { LogOut, LayoutGrid, Film, Menu, X } from "lucide-react";
+import { LogOut, LayoutGrid, Menu, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { userApi } from "@/lib/api/user.api";
 
 import icon from "../../public/favicon.ico";
 
@@ -11,6 +13,15 @@ const Dashboard = () => {
   const location = useLocation();
   const { toast } = useToast();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  // Obtener datos del usuario actual
+  const { data: user } = useQuery({
+    queryKey: ["users", "me"],
+    queryFn: () => userApi.getMe(),
+  });
+
+  const userInitial = user?.data?.firstName?.[0]?.toUpperCase() || "...";
+  const userName = user?.data.firstName;
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -83,18 +94,6 @@ const Dashboard = () => {
             <span className={sidebarOpen ? "block" : "hidden lg:hidden"}>Proyectos</span>
           </Button>
 
-          {/* <Button
-            onClick={() => navigate("/admin/videos")}
-            variant="ghost"
-            className={`w-full justify-start gap-3 transition-colors ${
-              isActive("videos")
-                ? "bg-cyber-blue/20 text-cyber-blue hover:bg-cyber-blue/30"
-                : "text-slate-400 hover:text-white hover:bg-slate-700/50"
-            }`}
-          >
-            <Film className="w-5 h-5 flex-shrink-0" />
-            {sidebarOpen && <span>Videos</span>}
-          </Button> */}
         </nav>
 
         {/* Logout */}
@@ -139,7 +138,10 @@ const Dashboard = () => {
           </div>
           <div className="flex items-center gap-4">
             <div className="w-8 h-8 lg:w-10 lg:h-10 rounded-full bg-gradient-to-br from-cyber-blue to-deep-violet flex items-center justify-center text-white text-sm lg:text-base font-semibold">
-              U
+              {userInitial}
+            </div>
+            <div className="hidden sm:block text-sm lg:text-base text-white">
+              {userName}
             </div>
           </div>
         </div>

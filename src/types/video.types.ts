@@ -68,7 +68,7 @@ export interface GetVideosOptions {
  * Constantes de validación
  */
 export const VIDEO_CONSTRAINTS = {
-  MAX_FILE_SIZE: 200 * 1024 * 1024, // 200MB
+  MAX_FILE_SIZE: 50 * 1024 * 1024, // 50MB
   ALLOWED_FORMATS: ["video/mp4", "video/quicktime", "video/x-msvideo", "video/webm", "video/x-matroska"],
   ALLOWED_EXTENSIONS: [".mp4", ".mov", ".avi", ".webm", ".mkv"],
 } as const;

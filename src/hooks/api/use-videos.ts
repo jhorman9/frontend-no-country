@@ -147,7 +147,7 @@ export const useVideos = (options: UseVideosOptions): UseVideosReturn => {
     if (file.size > VIDEO_CONSTRAINTS.MAX_FILE_SIZE) {
       return {
         valid: false,
-        error: `${file.name}: El tamaño máximo permitido es 200MB`,
+        error: `${file.name}: El tamaño máximo permitido es ${VIDEO_CONSTRAINTS.MAX_FILE_SIZE / (1024 * 1024)}MB`,
       };
     }
 
