@@ -2,7 +2,7 @@ import { useRef } from "react";
 import { Navigate, useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Upload, Scissors, Trash2, Play, ArrowLeft, Loader2 } from "lucide-react";
+import { Upload, Scissors, Download, Trash2, Play, ArrowLeft, Loader2 } from "lucide-react";
 import { useVideos } from "@/hooks/api/use-videos";
 import { usePagination } from "@/hooks/ui/use-pagination";
 
@@ -107,25 +107,26 @@ const Videos = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 lg:space-y-6">
       {/* Header con upload */}
-      <div className="flex justify-between items-center">
-        <div className="flex-1">
-          <div className="flex items-center gap-3 mb-2">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div className="flex-1 w-full sm:w-auto">
+          <div className="flex items-center gap-2 lg:gap-3 mb-2">
             {proyectoIdParam && (
               <Button
                 onClick={() => navigate("/admin/proyectos")}
                 variant="ghost"
-                className="text-slate-400 hover:text-white hover:bg-slate-700/50 gap-2 p-0"
+                size="icon"
+                className="text-slate-400 hover:text-white hover:bg-slate-700/50 h-8 w-8 lg:h-10 lg:w-10"
               >
-                <ArrowLeft className="w-5 h-5" />
+                <ArrowLeft className="w-4 h-4 lg:w-5 lg:h-5" />
               </Button>
             )}
-            <h2 className="text-3xl font-bold text-white">
+            <h2 className="text-xl lg:text-3xl font-bold text-white truncate">
               {proyectoIdParam ? `Videos: Proyecto ${proyectoIdParam}` : "Videos"}
             </h2>
           </div>
-          <p className="text-slate-400">
+          <p className="text-xs lg:text-sm text-slate-400">
             {proyectoIdParam
               ? `${totalPages > 0 ? `Total: ${videos.length} video(s) en esta página` : 'Gestiona tus videos'}`
               : "Gestiona todos tus videos y recórtalos"}
@@ -134,16 +135,16 @@ const Videos = () => {
         <Button
           onClick={() => fileInputRef.current?.click()}
           disabled={isUploading || !proyectoIdParam || loading}
-          className="bg-gradient-to-r from-cyber-blue to-deep-violet hover:shadow-lg hover:shadow-cyber-blue/30 text-white font-semibold gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full sm:w-auto bg-gradient-to-r from-cyber-blue to-deep-violet hover:shadow-lg hover:shadow-cyber-blue/30 text-white font-semibold gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-sm lg:text-base"
         >
           {isUploading ? (
             <>
-              <Loader2 className="w-5 h-5 animate-spin" />
+              <Loader2 className="w-4 h-4 lg:w-5 lg:h-5 animate-spin" />
               Subiendo...
             </>
           ) : (
             <>
-              <Upload className="w-5 h-5" />
+              <Upload className="w-4 h-4 lg:w-5 lg:h-5" />
               Subir Video
             </>
           )}
@@ -184,10 +185,11 @@ const Videos = () => {
         </Card>
       )}
 
-      {/* Tabla de videos */}
+      {/* Tabla de videos - Desktop */}
       {!loading && !error && videos.length > 0 ? (
         <>
-          <Card className="bg-slate-800/50 border-slate-700/50 backdrop-blur overflow-hidden">
+          {/* Desktop Table */}
+          <Card className="hidden lg:block bg-slate-800/50 border-slate-700/50 backdrop-blur overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full">
               <thead className="border-b border-slate-700/50 bg-slate-700/20">
@@ -282,6 +284,73 @@ const Videos = () => {
             </table>
           </div>
         </Card>
+
+        {/* Mobile Cards */}
+        <div className="lg:hidden space-y-3">
+          {videos.map((video) => (
+            <Card
+              key={video.id}
+              onClick={() => navigate(`/admin/proyectos/${video.projectId}/videos/${video.id}`)}
+              className="bg-slate-800/50 border-slate-700/50 hover:border-cyber-blue/40 transition-all backdrop-blur cursor-pointer"
+            >
+              <CardContent className="p-4">
+                <div className="flex items-start gap-3 mb-3">
+                  <div className="w-12 h-12 rounded bg-slate-700/50 flex items-center justify-center flex-shrink-0">
+                    <Play className="w-6 h-6 text-slate-400" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-white truncate hover:text-cyber-blue transition-colors">
+                      {video.title}
+                    </p>
+                    <div className="flex items-center gap-3 mt-1 text-xs text-slate-400">
+                      <span>{getFileSize(video.sizeInBytes)} MB</span>
+                      <span>•</span>
+                      <span>{formatDuration(video.durationInMillis)}</span>
+                    </div>
+                  </div>
+                  <span
+                    className={`inline-block px-2 py-1 rounded text-xs font-semibold whitespace-nowrap ${getEstadoColor(
+                      video.status
+                    )}`}
+                  >
+                    {getEstadoTexto(video.status)}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between text-xs text-slate-400 mb-3">
+                  <span>{new Date(video.createdAt).toLocaleDateString("es-ES")}</span>
+                </div>
+                <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
+                  {video.status === "UPLOADED" && (
+                    <Button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        // handleRecortar(video.id);
+                      }}
+                      size="sm"
+                      variant="outline"
+                      className="flex-1 border-cyber-blue/40 text-cyber-blue hover:bg-cyber-blue/10 h-8 text-xs"
+                    >
+                      <Scissors className="w-3 h-3 mr-1" />
+                      Recortar
+                    </Button>
+                  )}
+                  <Button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleEliminar(video.id);
+                    }}
+                    size="sm"
+                    variant="outline"
+                    className="flex-1 border-destructive/40 text-destructive hover:bg-destructive/10 h-8 text-xs"
+                  >
+                    <Trash2 className="w-3 h-3 mr-1" />
+                    Eliminar
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
 
         {/* Pagination */}
         {pagination.totalPages > 1 && (

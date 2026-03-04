@@ -130,12 +130,12 @@ const Proyectos = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 lg:space-y-6">
       {/* Header con botón crear */}
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h2 className="text-3xl font-bold text-white mb-2">Proyectos</h2>
-          <p className="text-slate-400">
+          <h2 className="text-2xl lg:text-3xl font-bold text-white mb-2">Proyectos</h2>
+          <p className="text-sm lg:text-base text-slate-400">
             {totalPages > 0 
               ? `Total: ${proyectos.length} proyecto(s) en esta página`
               : "Gestiona todos tus proyectos de video"}
@@ -143,10 +143,10 @@ const Proyectos = () => {
         </div>
         <Button
           onClick={handleNuevoProyecto}
-          className="bg-gradient-to-r from-cyber-blue to-deep-violet hover:shadow-lg hover:shadow-cyber-blue/30 text-white font-semibold gap-2"
+          className="w-full sm:w-auto bg-gradient-to-r from-cyber-blue to-deep-violet hover:shadow-lg hover:shadow-cyber-blue/30 text-white font-semibold gap-2"
         >
-          <Plus className="w-5 h-5" />
-          Nuevo Proyecto
+          <Plus className="w-4 h-4 lg:w-5 lg:h-5" />
+          <span className="text-sm lg:text-base">Nuevo Proyecto</span>
         </Button>
       </div>
 
@@ -218,7 +218,7 @@ const Proyectos = () => {
                   </div>
 
                   {/* Actions */}
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 flex-wrap">
                     <Button
                       onClick={() => navigate(`/admin/videos?proyectoId=${proyecto.id}`)}
                       variant="outline"
@@ -306,10 +306,10 @@ const Proyectos = () => {
 
       {/* Modal para editar proyecto */}
       {editModal.isOpen && editingProjectId !== null && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur flex items-center justify-center z-50">
-          <Card className="bg-slate-800 border-slate-700/50 max-w-md w-full mx-4">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur flex items-center justify-center z-50 p-4">
+          <Card className="bg-slate-800 border-slate-700/50 max-w-md w-full mx-auto">
             <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle className="text-white">Editar Proyecto</CardTitle>
+              <CardTitle className="text-white text-lg lg:text-xl">Editar Proyecto</CardTitle>
               <Button
                 onClick={handleCloseEditModal}
                 disabled={isUpdating}
@@ -392,10 +392,10 @@ const Proyectos = () => {
 
       {/* Modal para crear proyecto */}
       {createModal.isOpen && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur flex items-center justify-center z-50">
-          <Card className="bg-slate-800 border-slate-700/50 max-w-md w-full mx-4">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur flex items-center justify-center z-50 p-4">
+          <Card className="bg-slate-800 border-slate-700/50 max-w-md w-full mx-auto">
             <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle className="text-white">Crear Nuevo Proyecto</CardTitle>
+              <CardTitle className="text-white text-lg lg:text-xl">Nuevo Proyecto</CardTitle>
               <Button
                 onClick={handleCloseModal}
                 disabled={isCreating}

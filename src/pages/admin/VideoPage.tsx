@@ -272,28 +272,28 @@ const VideoPage = () => {
   }
 
   return (
-    <div className="space-y-8" data-testid="video-page">
-      <div className="space-y-4">
+    <div className="space-y-4 lg:space-y-8" data-testid="video-page">
+      <div className="space-y-3 lg:space-y-4">
         <Link
           to={`/admin/videos?proyectoId=${projectId}`}
-          className="inline-flex items-center gap-2 text-sm text-slate-400 hover:text-white transition-colors group"
+          className="inline-flex items-center gap-2 text-xs lg:text-sm text-slate-400 hover:text-white transition-colors group"
         >
-          <ArrowLeft className="h-4 w-4 group-hover:-translate-x-1 transition-transform" />
+          <ArrowLeft className="h-3 w-3 lg:h-4 lg:w-4 group-hover:-translate-x-1 transition-transform" />
           Volver al proyecto
         </Link>
         {videoLoading ? (
-          <Skeleton className="h-10 w-64" />
+          <Skeleton className="h-8 lg:h-10 w-48 lg:w-64" />
         ) : (
-          <h1 className="text-4xl font-bold tracking-tight text-white">{video?.title || "Video"}</h1>
+          <h1 className="text-2xl lg:text-4xl font-bold tracking-tight text-white">{video?.title || "Video"}</h1>
         )}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2 space-y-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-8">
+        <div className="lg:col-span-2 space-y-4 lg:space-y-6">
           {videoLoading ? (
-            <Skeleton className="aspect-video w-full rounded-2xl" />
+            <Skeleton className="aspect-video w-full rounded-lg lg:rounded-2xl" />
           ) : video?.secureUrl ? (
-            <div className="relative aspect-video bg-black rounded-2xl overflow-hidden shadow-2xl">
+            <div className="relative aspect-video bg-black rounded-lg lg:rounded-2xl overflow-hidden shadow-2xl">
               <video
                 src={video.secureUrl}
                 controls
@@ -337,7 +337,7 @@ const VideoPage = () => {
 
             <TabsContent value="renditions" className="space-y-4">
               {renditionsLoading ? (
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 lg:gap-4">
                   {[...Array(3)].map((_, i) => (
                     <Skeleton key={i} className="aspect-[9/16] rounded-xl" />
                   ))}
@@ -355,7 +355,7 @@ const VideoPage = () => {
                   </CardContent>
                 </Card>
               ) : (
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 lg:gap-4">
                   {renditions.map((rendition) => (
                     <Card key={rendition.id} className="overflow-hidden border-border/50 group" data-testid={`rendition-${rendition.id}`}>
                       <div className="relative aspect-[9/16] bg-gradient-to-br from-slate-800 to-slate-900">
@@ -509,20 +509,20 @@ const VideoPage = () => {
           </Tabs>
         </div>
 
-        <div className="space-y-6">
-          <Card className="border-border/50 bg-card/50 backdrop-blur-sm sticky top-24">
-            <CardHeader className="pb-4">
-              <CardTitle className="flex items-center gap-2 text-xl">
-                <div className="p-2 rounded-lg bg-gradient-to-br from-blue-500/10 to-purple-500/10">
-                  <Wand2 className="h-5 w-5 text-purple-500" />
+        <div className="space-y-4 lg:space-y-6">
+          <Card className="border-border/50 bg-card/50 backdrop-blur-sm lg:sticky lg:top-24">
+            <CardHeader className="pb-3 lg:pb-4">
+              <CardTitle className="flex items-center gap-2 text-lg lg:text-xl">
+                <div className="p-1.5 lg:p-2 rounded-lg bg-gradient-to-br from-blue-500/10 to-purple-500/10">
+                  <Wand2 className="h-4 w-4 lg:h-5 lg:w-5 text-purple-500" />
                 </div>
                 Procesar video
               </CardTitle>
-              <CardDescription>Convierte a formato vertical 9:16 para redes sociales</CardDescription>
+              <CardDescription className="text-xs lg:text-sm">Convierte a formato vertical 9:16 para redes sociales</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent className="space-y-4 lg:space-y-6">
               <div className="space-y-3">
-                <Label className="text-sm font-medium">Modo de procesamiento</Label>
+                <Label className="text-xs lg:text-sm font-medium">Modo de procesamiento</Label>
                 <div className="grid gap-2">
                   {[
                     { value: "vertical", label: "Video completo", desc: "Convierte todo el video" },
@@ -533,11 +533,11 @@ const VideoPage = () => {
                       key={mode.value}
                       type="button"
                       onClick={() => setProcessingMode(mode.value as ProcessVideoPayload["processingMode"])}
-                      className={`w-full p-3 rounded-lg border text-left transition-all ${
+                      className={`w-full p-2.5 lg:p-3 rounded-lg border text-left transition-all ${
                         processingMode === mode.value ? "border-purple-500 bg-purple-500/10" : "border-border hover:border-purple-500/50"
                       }`}
                     >
-                      <p className="font-medium text-sm">{mode.label}</p>
+                      <p className="font-medium text-xs lg:text-sm">{mode.label}</p>
                       <p className="text-xs text-muted-foreground">{mode.desc}</p>
                     </button>
                   ))}
@@ -545,9 +545,9 @@ const VideoPage = () => {
               </div>
 
               <div className="space-y-2">
-                <Label>Plataforma destino</Label>
+                <Label className="text-xs lg:text-sm">Plataforma destino</Label>
                 <Select value={platform} onValueChange={(value) => setPlatform(value as ProcessVideoPayload["platform"])}>
-                  <SelectTrigger className="h-11" data-testid="platform-select">
+                  <SelectTrigger className="h-9 lg:h-11 text-xs lg:text-sm" data-testid="platform-select">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -561,9 +561,9 @@ const VideoPage = () => {
               </div>
 
               <div className="space-y-2">
-                <Label>Calidad</Label>
+                <Label className="text-xs lg:text-sm">Calidad</Label>
                 <Select value={quality} onValueChange={(value) => setQuality(value as ProcessVideoPayload["quality"])}>
-                  <SelectTrigger className="h-11" data-testid="quality-select">
+                  <SelectTrigger className="h-9 lg:h-11 text-xs lg:text-sm" data-testid="quality-select">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -577,12 +577,12 @@ const VideoPage = () => {
               </div>
 
               <div className="space-y-2">
-                <Label>Modo de fondo</Label>
+                <Label className="text-xs lg:text-sm">Modo de fondo</Label>
                 <Select
                   value={backgroundMode}
                   onValueChange={(value) => setBackgroundMode(value as ProcessVideoPayload["backgroundMode"])}
                 >
-                  <SelectTrigger className="h-11" data-testid="background-mode-select">
+                  <SelectTrigger className="h-9 lg:h-11 text-xs lg:text-sm" data-testid="background-mode-select">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -596,10 +596,10 @@ const VideoPage = () => {
               </div>
 
               {processingMode === "short_auto" && (
-                <div className="space-y-3 p-4 rounded-lg bg-muted/50">
+                <div className="space-y-3 p-3 lg:p-4 rounded-lg bg-muted/50">
                   <div className="flex justify-between">
-                    <Label>Duración del short</Label>
-                    <span className="text-sm font-medium text-purple-500">{shortAutoDuration}s</span>
+                    <Label className="text-xs lg:text-sm">Duración del short</Label>
+                    <span className="text-xs lg:text-sm font-medium text-purple-500">{shortAutoDuration}s</span>
                   </div>
                   <Slider
                     value={[shortAutoDuration]}
@@ -614,22 +614,22 @@ const VideoPage = () => {
               )}
 
               {processingMode === "short_manual" && (
-                <div className="space-y-4 p-4 rounded-lg bg-muted/50">
+                <div className="space-y-4 p-3 lg:p-4 rounded-lg bg-muted/50">
                   <div className="space-y-2">
-                    <Label>Tiempo de inicio (segundos)</Label>
+                    <Label className="text-xs lg:text-sm">Tiempo de inicio (segundos)</Label>
                     <Input
                       type="number"
                       value={shortStartTime}
                       onChange={(e) => setShortStartTime(Number(e.target.value))}
                       min={0}
-                      className="h-11"
+                      className="h-9 lg:h-11 text-xs lg:text-sm"
                       data-testid="short-start-time-input"
                     />
                   </div>
                   <div className="space-y-3">
                     <div className="flex justify-between">
-                      <Label>Duración</Label>
-                      <span className="text-sm font-medium text-purple-500">{shortDuration}s</span>
+                      <Label className="text-xs lg:text-sm">Duración</Label>
+                      <span className="text-xs lg:text-sm font-medium text-purple-500">{shortDuration}s</span>
                     </div>
                     <Slider
                       value={[shortDuration]}
@@ -644,26 +644,26 @@ const VideoPage = () => {
               )}
 
               <Button
-                className="w-full h-12 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 shadow-lg shadow-purple-500/25 hover:shadow-purple-500/40 transition-all text-base font-medium"
+                className="w-full h-10 lg:h-12 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 shadow-lg shadow-purple-500/25 hover:shadow-purple-500/40 transition-all text-sm lg:text-base font-medium"
                 onClick={handleProcess}
                 disabled={processMutation.isPending}
                 data-testid="process-video-button"
               >
                 {processMutation.isPending ? (
-                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                  <Loader2 className="mr-2 h-4 w-4 lg:h-5 lg:w-5 animate-spin" />
                 ) : (
-                  <Sparkles className="mr-2 h-5 w-5" />
+                  <Sparkles className="mr-2 h-4 w-4 lg:h-5 lg:w-5" />
                 )}
                 Convertir a vertical
               </Button>
 
               <Button
                 variant="outline"
-                className="w-full border-destructive/50 text-destructive hover:bg-destructive/10"
+                className="w-full h-10 lg:h-12 border-destructive/50 text-destructive hover:bg-destructive/10 text-sm lg:text-base"
                 onClick={() => deleteVideoMutation.mutate()}
                 disabled={deleteVideoMutation.isPending}
               >
-                {deleteVideoMutation.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Trash2 className="mr-2 h-4 w-4" />}
+                {deleteVideoMutation.isPending ? <Loader2 className="mr-2 h-3 w-3 lg:h-4 lg:w-4 animate-spin" /> : <Trash2 className="mr-2 h-3 w-3 lg:h-4 lg:w-4" />}
                 Eliminar video original
               </Button>
             </CardContent>
