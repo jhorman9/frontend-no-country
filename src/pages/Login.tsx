@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import AuthLayout from "@/components/AuthLayout";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Eye, EyeOff, LogIn } from "lucide-react";
+import { Eye, EyeOff, LogIn, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const Login = () => {
@@ -13,6 +13,44 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [isValidatingToken, setIsValidatingToken] = useState(true);
+
+  // Validar si ya existe un token válido
+  useEffect(() => {
+    const validateToken = async () => {
+      const token = localStorage.getItem("token");
+      
+      if (!token) {
+        setIsValidatingToken(false);
+        return;
+      }
+
+      try {
+        const response = await fetch("https://elevideo.onrender.com/api/users/me", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (response.ok) {
+          // Token válido, redirigir al admin
+          navigate("/admin");
+        } else {
+          // Token inválido o expirado, eliminarlo
+          localStorage.removeItem("token");
+          setIsValidatingToken(false);
+        }
+      } catch (error) {
+        // Error de conexión, eliminar token problemático
+        localStorage.removeItem("token");
+        setIsValidatingToken(false);
+      }
+    };
+
+    validateToken();
+  }, [navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -62,12 +100,19 @@ const Login = () => {
 
   return (
     <AuthLayout>
-      <div className="mb-6">
-        <h2 className="text-2xl font-bold text-foreground mb-1">Bienvenido de nuevo</h2>
-        <p className="text-muted-foreground text-sm">Inicia sesión en tu cuenta</p>
-      </div>
+      {isValidatingToken ? (
+        <div className="flex flex-col items-center justify-center py-8">
+          <Loader2 className="w-8 h-8 animate-spin text-primary mb-4" />
+          <p className="text-muted-foreground">Validando sesión...</p>
+        </div>
+      ) : (
+        <>
+          <div className="mb-6">
+            <h2 className="text-2xl font-bold text-foreground mb-1">Bienvenido de nuevo</h2>
+            <p className="text-muted-foreground text-sm">Inicia sesión en tu cuenta</p>
+          </div>
 
-      <form onSubmit={handleSubmit} className="space-y-5">
+          <form onSubmit={handleSubmit} className="space-y-5">
         <div className="space-y-2">
           <Label htmlFor="email" className="text-foreground text-sm font-medium">
             Correo electrónico
@@ -136,6 +181,8 @@ const Login = () => {
           </Link>
         </p>
       </div>
+        </>
+      )}
     </AuthLayout>
   );
 };
