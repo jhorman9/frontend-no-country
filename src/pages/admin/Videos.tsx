@@ -322,13 +322,10 @@ const Videos = () => {
                 <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
                   {video.status === "UPLOADED" && (
                     <Button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        // handleRecortar(video.id);
-                      }}
                       size="sm"
                       variant="outline"
                       className="flex-1 border-cyber-blue/40 text-cyber-blue hover:bg-cyber-blue/10 h-8 text-xs"
+                      onClick={() => navigate(`/admin/proyectos/${video.projectId}/videos/${video.id}`)}
                     >
                       <Scissors className="w-3 h-3 mr-1" />
                       Recortar
