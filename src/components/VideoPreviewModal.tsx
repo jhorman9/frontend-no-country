@@ -18,7 +18,7 @@ export const VideoPreviewModal = ({ isOpen, onClose, video, rendition }: VideoPr
         <DialogHeader>
           <DialogTitle className="text-white">Preview</DialogTitle>
         </DialogHeader>
-        <div className="w-full aspect-video bg-black rounded-lg overflow-hidden">
+        <div className="w-full aspect-video bg-white/25 rounded-lg overflow-hidden">
           {source ? (
             <video src={source} controls className="w-full h-full" />
           ) : (
